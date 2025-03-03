@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,10 +11,11 @@ import {
   Package, 
   Bell, 
   Settings, 
-  LogOut 
+  LogOut,
+  Plus
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { toast } from '@/components/ui/sonner';
+import { toast } from "sonner";
 
 // Mock user data
 const mockUser = {
