@@ -2,6 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Link } from "react-router-dom"
 
 import { cn } from "@/lib/utils"
 
@@ -49,11 +50,25 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  as?: React.ElementType
+  to?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, animation, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+  ({ className, variant, size, animation, asChild = false, as, to, ...props }, ref) => {
+    const Comp = asChild ? Slot : as || "button"
+    
+    // If it's a Link component, we need to pass the 'to' prop
+    if (as === Link && to) {
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, animation, className }))}
+          to={to}
+          {...props}
+        />
+      )
+    }
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, animation, className }))}
@@ -73,18 +88,23 @@ export interface BasketButtonProps extends ButtonProps {
 }
 
 const BasketButton = React.forwardRef<HTMLButtonElement, BasketButtonProps>(
-  ({ children, isOpen = false, count, total, className, ...props }, ref) => {
+  ({ children, isOpen = false, count, total, className, as, to, ...props }, ref) => {
+    const Comp = as || "button"
+    
+    const buttonProps = as === Link && to ? { to, ...props } : props
+    
     return (
       <Button 
         ref={ref}
         variant="basket"
         size="auto"
+        as={as}
         className={cn(
           "group py-2 px-4 relative",
           isOpen ? "w-auto" : "w-auto",
           className
         )}
-        {...props}
+        {...buttonProps}
       >
         <div className="flex items-center gap-2">
           {children}
