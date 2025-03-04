@@ -100,11 +100,12 @@ const BasketButton = React.forwardRef<HTMLButtonElement, BasketButtonProps>(
 
           {isOpen && total !== undefined && (
             <div className={cn(
-              "flex items-center transition-all duration-500 animate-slide-up",
-              isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+              "flex items-center transition-all duration-500",
+              isOpen ? "opacity-100 translate-y-0 animate-slide-right" : "opacity-0 translate-x-4"
             )}>
-              <span className="mx-2 w-px h-4 bg-gray-300/50"></span>
-              <span className="text-sm font-medium">${typeof total === 'number' ? total.toFixed(2) : total}</span>
+              <div className="card-container ml-2 bg-white/30 backdrop-blur-md rounded-md px-3 py-1.5 shadow-sm border border-white/40 animate-scale-in">
+                <span className="text-sm font-medium">${typeof total === 'number' ? total.toFixed(2) : total}</span>
+              </div>
             </div>
           )}
         </div>
