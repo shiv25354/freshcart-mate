@@ -87,6 +87,14 @@ export default {
 					from: { transform: 'translateY(-20px)', opacity: '0' },
 					to: { transform: 'translateY(0)', opacity: '1' }
 				},
+				slideRight: {
+					from: { transform: 'translateX(-20px)', opacity: '0' },
+					to: { transform: 'translateX(0)', opacity: '1' }
+				},
+				slideLeft: {
+					from: { transform: 'translateX(20px)', opacity: '0' },
+					to: { transform: 'translateX(0)', opacity: '1' }
+				},
 				pulse: {
 					'0%, 100%': { opacity: '1' },
 					'50%': { opacity: '0.5' }
@@ -94,6 +102,10 @@ export default {
 				float: {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				expand: {
+					from: { width: '40px' },
+					to: { width: 'auto' }
 				}
 			},
 			animation: {
@@ -103,8 +115,11 @@ export default {
 				'fade-out': 'fadeOut 0.5s ease-out',
 				'slide-up': 'slideUp 0.5s ease-out',
 				'slide-down': 'slideDown 0.5s ease-out',
+				'slide-right': 'slideRight 0.5s ease-out',
+				'slide-left': 'slideLeft 0.5s ease-out',
 				'pulse-slow': 'pulse 3s infinite',
-				'float': 'float 6s ease-in-out infinite'
+				'float': 'float 6s ease-in-out infinite',
+				'expand': 'expand 0.3s ease-out forwards'
 			}
 		}
 	},

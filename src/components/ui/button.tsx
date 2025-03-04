@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -18,17 +19,28 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        glassy: "backdrop-blur-sm bg-white/20 border border-white/30 text-foreground shadow-md hover:bg-white/30 transition-all duration-300",
+        basket: "backdrop-blur-sm bg-white/20 border border-white/30 text-foreground shadow-md hover:bg-white/30 transition-all duration-300 overflow-hidden",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        auto: "h-auto",
+      },
+      animation: {
+        none: "",
+        slide: "animate-slide-up",
+        fade: "animate-fade-in",
+        scale: "animate-scale-in",
+        float: "animate-float",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      animation: "none",
     },
   }
 )
@@ -40,11 +52,11 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, animation, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, animation, className }))}
         ref={ref}
         {...props}
       />
@@ -53,4 +65,53 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+// Add a custom BasketButton component
+export interface BasketButtonProps extends ButtonProps {
+  isOpen?: boolean
+  count?: number
+  total?: string | number
+}
+
+const BasketButton = React.forwardRef<HTMLButtonElement, BasketButtonProps>(
+  ({ children, isOpen = false, count, total, className, ...props }, ref) => {
+    return (
+      <Button 
+        ref={ref}
+        variant="basket"
+        size="auto"
+        className={cn(
+          "group py-2 px-4 relative",
+          isOpen ? "w-auto" : "w-auto",
+          className
+        )}
+        {...props}
+      >
+        <div className="flex items-center gap-2">
+          {children}
+          
+          {count !== undefined && (
+            <span className={cn(
+              "ml-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full h-5 min-w-5 flex items-center justify-center transition-all duration-300",
+              isOpen ? "opacity-100" : "opacity-100"
+            )}>
+              {count}
+            </span>
+          )}
+
+          {isOpen && total !== undefined && (
+            <div className={cn(
+              "flex items-center transition-all duration-500 animate-slide-up",
+              isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+            )}>
+              <span className="mx-2 w-px h-4 bg-gray-300/50"></span>
+              <span className="text-sm font-medium">${typeof total === 'number' ? total.toFixed(2) : total}</span>
+            </div>
+          )}
+        </div>
+      </Button>
+    )
+  }
+)
+BasketButton.displayName = "BasketButton"
+
+export { Button, BasketButton, buttonVariants }
