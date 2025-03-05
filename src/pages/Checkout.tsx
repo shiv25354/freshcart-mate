@@ -69,7 +69,8 @@ const Checkout = () => {
     // Here we would connect to a payment gateway or API
     toast.success('Order placed successfully!');
     clearCart();
-    navigate('/orders');
+    // Navigate to the order success page instead of orders page
+    navigate('/order-success');
   };
   
   return (
