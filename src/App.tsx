@@ -14,6 +14,7 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import ProductDetail from "./pages/ProductDetail";
+import TrackOrder from "./pages/TrackOrder";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/track-order/:id" element={<TrackOrder />} />
               <Route path="/category/:id" element={<Search />} />
               <Route path="/featured" element={<Search />} />
               <Route path="/new" element={<Search />} />

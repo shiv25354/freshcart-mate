@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -90,6 +89,10 @@ const OrdersPage = () => {
     return order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const handleTrackOrder = (orderId: string) => {
+    navigate(`/track-order/${orderId.replace('ORD-', '')}`);
+  };
+
   return (
     <div className="min-h-screen pt-16 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
       <div className="flex items-center gap-4 mt-8 mb-6">
@@ -119,7 +122,6 @@ const OrdersPage = () => {
           ))}
         </div>
       ) : selectedOrder ? (
-        // Order Details View
         <div className="bg-card rounded-xl shadow-sm p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
@@ -210,7 +212,6 @@ const OrdersPage = () => {
           </div>
         </div>
       ) : orders.length === 0 ? (
-        // Empty Orders View
         <div className="text-center py-16">
           <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <h2 className="text-xl font-medium mb-2">No orders yet</h2>
@@ -220,7 +221,6 @@ const OrdersPage = () => {
           <Button onClick={() => navigate('/')}>Start Shopping</Button>
         </div>
       ) : (
-        // Orders List View
         <div className="space-y-6">
           {orders.map(order => (
             <div 
@@ -268,11 +268,12 @@ const OrdersPage = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // This would be replaced with tracking functionality
-                      alert(`Tracking order ${order.id}`);
+                      order.status === 'In Transit' 
+                        ? handleTrackOrder(order.id)
+                        : handleOrderClick(order);
                     }}
                   >
-                    {order.status === 'Delivered' ? 'View Details' : 'Track Order'}
+                    {order.status === 'In Transit' ? 'Track Order' : 'View Details'}
                   </Button>
                 </div>
               </div>
