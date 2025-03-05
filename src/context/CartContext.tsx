@@ -1,8 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../lib/data';
 import { toast } from "sonner";
 
-interface CartItem {
+export interface CartItem {
   product: Product;
   quantity: number;
 }
