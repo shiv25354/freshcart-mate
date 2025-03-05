@@ -26,8 +26,7 @@ const Cart = () => {
   const isEmpty = cartItems.length === 0;
 
   const handleCheckout = () => {
-    // This would be replaced with actual checkout logic
-    alert('Checkout functionality would be implemented here');
+    navigate('/checkout');
   };
 
   return (
@@ -113,7 +112,7 @@ const Cart = () => {
                 className="w-full mb-4"
                 onClick={handleCheckout}
               >
-                Checkout
+                Proceed to Checkout
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               
