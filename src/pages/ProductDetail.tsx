@@ -1,21 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById, getProductsByCategory, Product, WeightOption } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
-import ProductCard from '@/components/ProductCard';
-import { 
-  ShoppingBag, 
-  Plus, 
-  Minus, 
-  Star, 
-  ArrowLeft, 
-  Truck,
-  ShieldCheck,
-  RefreshCw,
-  Leaf,
-  ChevronDown
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+
+// Import our new components
+import ProductImage from '@/components/ProductDetail/ProductImage';
+import ProductRating from '@/components/ProductDetail/ProductRating';
+import WeightSelector from '@/components/ProductDetail/WeightSelector';
+import ProductPrice from '@/components/ProductDetail/ProductPrice';
+import QuantitySelector from '@/components/ProductDetail/QuantitySelector';
+import ProductFeatures from '@/components/ProductDetail/ProductFeatures';
+import RelatedProducts from '@/components/ProductDetail/RelatedProducts';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +22,6 @@ const ProductDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedWeight, setSelectedWeight] = useState<string>('default');
-  const [showWeightOptions, setShowWeightOptions] = useState(false);
   
   const product = id ? getProductById(id) : undefined;
   const cartItem = product ? cartItems.find(
@@ -113,173 +110,46 @@ const ProductDetail = () => {
       
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         {/* Product Image */}
-        <div className="relative overflow-hidden rounded-xl bg-muted">
-          {isLoading ? (
-            <div className="aspect-square animate-pulse-slow bg-muted-foreground/10"></div>
-          ) : (
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-full object-cover aspect-square animate-fade-in"
-            />
-          )}
-          
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
-            {product.isNew && (
-              <span className="bg-blue-500 text-white px-3 py-1 rounded-full flex items-center text-sm">
-                <span className="mr-1">🆕</span> New
-              </span>
-            )}
-            {product.discount && (
-              <span className="bg-destructive text-white px-3 py-1 rounded-full flex items-center text-sm">
-                <span className="mr-1">🔥</span> {product.discount}% OFF
-              </span>
-            )}
-            {product.category === 'vegetables' && (
-              <span className="bg-green-500 text-white px-3 py-1 rounded-full flex items-center text-sm">
-                <Leaf className="w-3.5 h-3.5 mr-1" /> Organic
-              </span>
-            )}
-          </div>
-        </div>
+        <ProductImage product={product} isLoading={isLoading} />
         
         {/* Product Info */}
         <div className={`flex flex-col transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
           <h1 className="text-3xl font-bold">{product.name}</h1>
           
-          <div className="flex items-center mt-2 mb-4">
-            <div className="flex items-center text-amber-500">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'fill-current' : 'fill-none'}`} 
-                />
-              ))}
-              <span className="ml-2 text-foreground">{product.rating}</span>
-              <span className="ml-2 text-muted-foreground">(120 reviews)</span>
-            </div>
-          </div>
+          <ProductRating rating={product.rating} />
           
           {/* Weight/Size Options */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
-              Choose Weight/Size:
-            </label>
-            <div className="relative">
-              <button
-                className="w-full flex items-center justify-between border rounded-md px-4 py-2.5 bg-background hover:bg-muted transition-colors"
-                onClick={() => setShowWeightOptions(!showWeightOptions)}
-              >
-                <span>{selectedOption.label}</span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </button>
-              
-              {showWeightOptions && (
-                <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg">
-                  {weightOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      className="w-full text-left px-4 py-2.5 hover:bg-muted"
-                      onClick={() => {
-                        setSelectedWeight(option.value);
-                        setShowWeightOptions(false);
-                      }}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <WeightSelector 
+            weightOptions={weightOptions}
+            selectedWeight={selectedWeight}
+            onWeightChange={setSelectedWeight}
+          />
           
-          <div className="mb-6">
-            <div className="flex items-baseline">
-              <span className="text-3xl font-bold text-primary">${finalPrice.toFixed(2)}</span>
-              {product.discount && (
-                <span className="ml-3 text-lg text-muted-foreground line-through">
-                  ${product.price.toFixed(2)}
-                </span>
-              )}
-            </div>
-            {product.discount && (
-              <p className="text-destructive mt-1">
-                Save ${(product.price - basePrice).toFixed(2)} ({product.discount}% off)
-              </p>
-            )}
-          </div>
+          <ProductPrice 
+            finalPrice={finalPrice}
+            originalPrice={product.price}
+            discount={product.discount}
+            basePrice={basePrice}
+          />
           
           <p className="text-muted-foreground mb-6">{product.description}</p>
           
           {/* Add to Cart */}
-          <div className="flex items-center mb-8">
-            {isInCart ? (
-              <div className="flex items-center">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-10 w-10 rounded-full"
-                  onClick={handleDecreaseQuantity}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="mx-4 text-lg font-medium min-w-8 text-center">
-                  {cartItem.quantity}
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-10 w-10 rounded-full"
-                  onClick={handleIncreaseQuantity}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <Button 
-                size="lg" 
-                className="rounded-full"
-                onClick={handleAddToCart}
-              >
-                <ShoppingBag className="h-5 w-5 mr-2" />
-                Add to Cart
-              </Button>
-            )}
-          </div>
+          <QuantitySelector 
+            isInCart={isInCart}
+            quantity={cartItem?.quantity}
+            onAddToCart={handleAddToCart}
+            onIncrease={handleIncreaseQuantity}
+            onDecrease={handleDecreaseQuantity}
+          />
           
           {/* Features */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-auto">
-            <div className="flex flex-col items-center p-4 bg-muted rounded-lg text-center">
-              <Truck className="h-6 w-6 mb-2 text-primary" />
-              <span className="text-sm font-medium">Free Delivery</span>
-              <span className="text-xs text-muted-foreground">On orders above $30</span>
-            </div>
-            <div className="flex flex-col items-center p-4 bg-muted rounded-lg text-center">
-              <ShieldCheck className="h-6 w-6 mb-2 text-primary" />
-              <span className="text-sm font-medium">Quality Guarantee</span>
-              <span className="text-xs text-muted-foreground">100% fresh products</span>
-            </div>
-            <div className="flex flex-col items-center p-4 bg-muted rounded-lg text-center">
-              <RefreshCw className="h-6 w-6 mb-2 text-primary" />
-              <span className="text-sm font-medium">Easy Returns</span>
-              <span className="text-xs text-muted-foreground">Within 24 hours</span>
-            </div>
-          </div>
+          <ProductFeatures />
         </div>
       </div>
       
       {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-xl font-medium mb-6">You might also like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {relatedProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+      <RelatedProducts products={relatedProducts} />
     </div>
   );
 };
