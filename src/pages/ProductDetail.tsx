@@ -13,8 +13,17 @@ import {
   ArrowLeft, 
   Truck,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  Leaf,
+  ChevronDown
 } from 'lucide-react';
+
+// Weight/size options type
+interface WeightOption {
+  label: string;
+  value: string;
+  priceModifier: number;
+}
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,10 +31,20 @@ const ProductDetail = () => {
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const [isLoading, setIsLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [selectedWeight, setSelectedWeight] = useState<string>('default');
+  const [showWeightOptions, setShowWeightOptions] = useState(false);
   
   const product = id ? getProductById(id) : undefined;
   const cartItem = product ? cartItems.find(item => item.product.id === product.id) : undefined;
   const isInCart = !!cartItem;
+
+  // Define weight/size options based on product category
+  const weightOptions: WeightOption[] = [
+    { label: 'Regular Size', value: 'default', priceModifier: 0 },
+    { label: '500g', value: 'small', priceModifier: -0.25 },
+    { label: '1kg', value: 'medium', priceModifier: 0.5 },
+    { label: '2kg', value: 'large', priceModifier: 1.5 },
+  ];
   
   useEffect(() => {
     if (!product) return;
@@ -53,12 +72,23 @@ const ProductDetail = () => {
     );
   }
   
-  const finalPrice = product.discount 
+  // Calculate price with weight option modifier
+  const selectedOption = weightOptions.find(opt => opt.value === selectedWeight) || weightOptions[0];
+  const basePrice = product.discount 
     ? product.price * (1 - product.discount / 100) 
     : product.price;
+  const finalPrice = basePrice * (1 + selectedOption.priceModifier);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    // Create a modified product with the selected weight option
+    const productWithOptions = {
+      ...product,
+      selectedWeight: selectedOption.label,
+      // Adjust the price based on the selected weight
+      price: product.price * (1 + selectedOption.priceModifier)
+    };
+    
+    addToCart(productWithOptions);
   };
 
   const handleIncreaseQuantity = () => {
@@ -102,13 +132,18 @@ const ProductDetail = () => {
           {/* Badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.isNew && (
-              <span className="bg-primary text-white px-3 py-1 rounded-full">
-                New
+              <span className="bg-blue-500 text-white px-3 py-1 rounded-full flex items-center text-sm">
+                <span className="mr-1">🆕</span> New
               </span>
             )}
             {product.discount && (
-              <span className="bg-destructive text-white px-3 py-1 rounded-full">
-                {product.discount}% OFF
+              <span className="bg-destructive text-white px-3 py-1 rounded-full flex items-center text-sm">
+                <span className="mr-1">🔥</span> {product.discount}% OFF
+              </span>
+            )}
+            {product.category === 'vegetables' && (
+              <span className="bg-green-500 text-white px-3 py-1 rounded-full flex items-center text-sm">
+                <Leaf className="w-3.5 h-3.5 mr-1" /> Organic
               </span>
             )}
           </div>
@@ -116,7 +151,7 @@ const ProductDetail = () => {
         
         {/* Product Info */}
         <div className={`flex flex-col transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-          <h1 className="text-3xl font-medium">{product.name}</h1>
+          <h1 className="text-3xl font-bold">{product.name}</h1>
           
           <div className="flex items-center mt-2 mb-4">
             <div className="flex items-center text-amber-500">
@@ -127,12 +162,46 @@ const ProductDetail = () => {
                 />
               ))}
               <span className="ml-2 text-foreground">{product.rating}</span>
+              <span className="ml-2 text-muted-foreground">(120 reviews)</span>
+            </div>
+          </div>
+          
+          {/* Weight/Size Options */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              Choose Weight/Size:
+            </label>
+            <div className="relative">
+              <button
+                className="w-full flex items-center justify-between border rounded-md px-4 py-2.5 bg-background hover:bg-muted transition-colors"
+                onClick={() => setShowWeightOptions(!showWeightOptions)}
+              >
+                <span>{selectedOption.label}</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+              
+              {showWeightOptions && (
+                <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg">
+                  {weightOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      className="w-full text-left px-4 py-2.5 hover:bg-muted"
+                      onClick={() => {
+                        setSelectedWeight(option.value);
+                        setShowWeightOptions(false);
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           
           <div className="mb-6">
             <div className="flex items-baseline">
-              <span className="text-3xl font-medium">${finalPrice.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-primary">${finalPrice.toFixed(2)}</span>
               {product.discount && (
                 <span className="ml-3 text-lg text-muted-foreground line-through">
                   ${product.price.toFixed(2)}
@@ -141,7 +210,7 @@ const ProductDetail = () => {
             </div>
             {product.discount && (
               <p className="text-destructive mt-1">
-                Save ${(product.price - finalPrice).toFixed(2)} ({product.discount}% off)
+                Save ${(product.price - basePrice).toFixed(2)} ({product.discount}% off)
               </p>
             )}
           </div>

@@ -1,16 +1,15 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../lib/data';
 import { toast } from "sonner";
 
 export interface CartItem {
-  product: Product;
+  product: Product & { selectedWeight?: string };
   quantity: number;
 }
 
 interface CartContextValue {
   cartItems: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product & { selectedWeight?: string }) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -44,19 +43,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [cartItems]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product & { selectedWeight?: string }) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.product.id === product.id);
+      // For products with weight options, check if that specific weight is already in cart
+      const existingItem = prevItems.find(item => 
+        item.product.id === product.id && 
+        item.product.selectedWeight === product.selectedWeight
+      );
       
       if (existingItem) {
-        toast.success(`Added another ${product.name} to cart`);
+        const weightInfo = product.selectedWeight ? ` (${product.selectedWeight})` : '';
+        toast.success(`Added another ${product.name}${weightInfo} to cart`);
         return prevItems.map(item => 
-          item.product.id === product.id 
+          (item.product.id === product.id && item.product.selectedWeight === product.selectedWeight)
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         );
       } else {
-        toast.success(`Added ${product.name} to cart`);
+        const weightInfo = product.selectedWeight ? ` (${product.selectedWeight})` : '';
+        toast.success(`Added ${product.name}${weightInfo} to cart`);
         return [...prevItems, { product, quantity: 1 }];
       }
     });
@@ -94,6 +99,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => {
+      // Use the product price directly, as it may already include weight-based modifications
       const price = item.product.discount 
         ? item.product.price * (1 - item.product.discount / 100) 
         : item.product.price;
