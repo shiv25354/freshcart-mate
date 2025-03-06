@@ -1,12 +1,15 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, MapPin, Clock, ArrowLeft, Package, Receipt, ExternalLink } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, ArrowLeft, Package, Receipt, Heart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { toast } from "sonner";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
+  const { clearCart } = useCart();
   const orderId = "2458"; // This would typically come from the order creation response
   
   // Example order details
@@ -19,10 +22,39 @@ const OrderSuccess = () => {
     deliveryTime: "30-45 minutes",
   };
   
+  // Timer state
+  const [minutes, setMinutes] = useState(30);
+  const [seconds, setSeconds] = useState(0);
+  
   useEffect(() => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Clear the cart as order is completed
+    clearCart();
+    
+    // Toast notification
+    toast.success("Your order has been placed successfully!");
+    
+    // Setup countdown timer
+    const timer = setInterval(() => {
+      if (seconds > 0) {
+        setSeconds(seconds - 1);
+      }
+      if (seconds === 0) {
+        if (minutes === 0) {
+          clearInterval(timer);
+          toast.info("Your order is being delivered now!");
+        } else {
+          setMinutes(minutes - 1);
+          setSeconds(59);
+        }
+      }
+    }, 1000);
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(timer);
+  }, [minutes, seconds, clearCart]);
   
   return (
     <div className="min-h-screen pt-16 pb-20 px-4 md:px-6 max-w-3xl mx-auto">
@@ -40,6 +72,32 @@ const OrderSuccess = () => {
         </div>
         <h2 className="text-2xl font-bold mb-2">Order Placed Successfully!</h2>
         <p className="text-muted-foreground mb-6">Your order #{orderId} has been confirmed</p>
+        
+        {/* Delivery Timer */}
+        <div className="w-full max-w-md bg-blue-50 rounded-lg p-4 mb-6 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-500" />
+              <h3 className="font-medium text-blue-700">Estimated Delivery</h3>
+            </div>
+            <div className="text-lg font-bold text-blue-700">
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </div>
+          </div>
+          <p className="text-blue-600 text-sm mt-2">Your order is being prepared and will arrive soon!</p>
+        </div>
+        
+        {/* Calm Town Message */}
+        <div className="w-full max-w-md bg-purple-50 rounded-lg p-4 mb-6 animate-slide-up">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="h-5 w-5 text-purple-500" />
+            <h3 className="font-medium text-purple-700">Relax, We've Got This</h3>
+          </div>
+          <p className="text-purple-600 text-sm">
+            Take a deep breath and relax. Your order is in good hands and on its way to you. 
+            Feel free to continue browsing or sit back and enjoy your day!
+          </p>
+        </div>
         
         <div className="grid grid-cols-2 gap-4 w-full max-w-xs mb-8">
           <Button 
