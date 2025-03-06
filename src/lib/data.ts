@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -11,6 +10,13 @@ export interface Product {
   discount?: number;
   isNew?: boolean;
   isFeatured?: boolean;
+  weightOptions?: WeightOption[];
+}
+
+export interface WeightOption {
+  label: string;
+  value: string;
+  priceModifier: number;
 }
 
 export interface Category {
@@ -52,6 +58,14 @@ export const categories: Category[] = [
   }
 ];
 
+// Standard weight options for all products
+const standardWeightOptions: WeightOption[] = [
+  { label: 'Regular Size', value: 'default', priceModifier: 0 },
+  { label: '500g', value: 'small', priceModifier: -0.25 },
+  { label: '1kg', value: 'medium', priceModifier: 0.5 },
+  { label: '2kg', value: 'large', priceModifier: 1.5 },
+];
+
 export const products: Product[] = [
   {
     id: "p1",
@@ -62,7 +76,8 @@ export const products: Product[] = [
     description: "Fresh organic avocados with rich flavor and creamy texture. Perfect for guacamole, salads, or enjoying on toast.",
     inStock: true,
     rating: 4.8,
-    isFeatured: true
+    isFeatured: true,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p2",
@@ -73,7 +88,8 @@ export const products: Product[] = [
     description: "Sweet and juicy strawberries, picked at peak ripeness. Enjoy as a snack or use in smoothies and desserts.",
     inStock: true,
     rating: 4.5,
-    discount: 15
+    discount: 15,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p3",
@@ -83,7 +99,8 @@ export const products: Product[] = [
     category: "vegetables",
     description: "Nutrient-rich organic spinach leaves. A versatile leafy green that's perfect for salads, smoothies, or cooking.",
     inStock: true,
-    rating: 4.3
+    rating: 4.3,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p4",
@@ -94,7 +111,8 @@ export const products: Product[] = [
     description: "Farm-fresh eggs from free-range chickens. Higher in nutrients with rich, flavorful yolks.",
     inStock: true,
     rating: 4.9,
-    isFeatured: true
+    isFeatured: true,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p5",
@@ -105,7 +123,8 @@ export const products: Product[] = [
     description: "Handcrafted sourdough bread made with our signature starter. Crusty exterior with a soft, tangy interior.",
     inStock: true,
     rating: 4.7,
-    isNew: true
+    isNew: true,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p6",
@@ -115,7 +134,8 @@ export const products: Product[] = [
     category: "dairy",
     description: "Creamy organic whole milk from grass-fed cows. Non-homogenized with a rich, natural flavor.",
     inStock: true,
-    rating: 4.6
+    rating: 4.6,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p7",
@@ -126,7 +146,8 @@ export const products: Product[] = [
     description: "Fresh Atlantic salmon fillets, sustainably sourced. Rich in omega-3 fatty acids with a delicate flavor.",
     inStock: true,
     rating: 4.8,
-    discount: 10
+    discount: 10,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p8",
@@ -137,7 +158,8 @@ export const products: Product[] = [
     description: "Smooth, low-acid cold brew coffee made from organic beans. Less bitter with a naturally sweet finish.",
     inStock: true,
     rating: 4.5,
-    isFeatured: true
+    isFeatured: true,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p9",
@@ -147,7 +169,8 @@ export const products: Product[] = [
     category: "vegetables",
     description: "Colorful mix of red, yellow, and green bell peppers. Sweet, crunchy, and perfect for salads, stir-fries, or roasting.",
     inStock: true,
-    rating: 4.4
+    rating: 4.4,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p10",
@@ -158,7 +181,8 @@ export const products: Product[] = [
     description: "Refreshing blueberry smoothie made with organic berries and yogurt. No added sugars or preservatives.",
     inStock: true,
     rating: 4.7,
-    isNew: true
+    isNew: true,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p11",
@@ -168,7 +192,8 @@ export const products: Product[] = [
     category: "fruits",
     description: "Sweet and nutritious organic bananas. Perfect as a quick snack or for baking and smoothies.",
     inStock: true,
-    rating: 4.3
+    rating: 4.3,
+    weightOptions: standardWeightOptions
   },
   {
     id: "p12",
@@ -178,9 +203,17 @@ export const products: Product[] = [
     category: "vegetables",
     description: "Aromatic fresh basil leaves. Essential for Italian cuisine, perfect for pasta, pizza, and salads.",
     inStock: true,
-    rating: 4.6
+    rating: 4.6,
+    weightOptions: standardWeightOptions
   }
 ];
+
+// Update each product to include weightOptions
+products.forEach(product => {
+  if (!product.weightOptions) {
+    product.weightOptions = standardWeightOptions;
+  }
+});
 
 export const getFeaturedProducts = (): Product[] => {
   return products.filter(product => product.isFeatured);

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Product } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, Plus, Minus, Star } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, Star, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
@@ -15,17 +15,37 @@ interface ProductCardProps {
 const ProductCard = ({ product, className }: ProductCardProps) => {
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [selectedWeight, setSelectedWeight] = useState('default');
+  const [showWeightOptions, setShowWeightOptions] = useState(false);
   
-  const cartItem = cartItems.find(item => item.product.id === product.id);
+  const cartItem = cartItems.find(item => 
+    item.product.id === product.id && 
+    item.product.selectedWeight === product.weightOptions?.find(opt => opt.value === selectedWeight)?.label
+  );
   const isInCart = !!cartItem;
-  const finalPrice = product.discount 
+  
+  // Get the selected weight option
+  const selectedOption = product.weightOptions?.find(opt => opt.value === selectedWeight) || 
+                         (product.weightOptions ? product.weightOptions[0] : { label: 'Regular Size', value: 'default', priceModifier: 0 });
+  
+  // Calculate final price with weight modifier
+  const basePrice = product.discount 
     ? product.price * (1 - product.discount / 100) 
     : product.price;
+  const finalPrice = basePrice * (1 + selectedOption.priceModifier);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product);
+    
+    // Create a modified product with the selected weight option
+    const productWithOptions = {
+      ...product,
+      selectedWeight: selectedOption.label,
+      price: product.price * (1 + selectedOption.priceModifier)
+    };
+    
+    addToCart(productWithOptions);
   };
 
   const handleIncreaseQuantity = (e: React.MouseEvent) => {
@@ -44,6 +64,13 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
     } else if (cartItem) {
       removeFromCart(product.id);
     }
+  };
+
+  const handleWeightSelect = (e: React.MouseEvent, value: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedWeight(value);
+    setShowWeightOptions(false);
   };
 
   return (
@@ -95,9 +122,40 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
           </div>
         </div>
         
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+        <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
           {product.description}
         </p>
+        
+        {/* Weight/Size Selector */}
+        {product.weightOptions && (
+          <div className="relative mb-2 text-sm z-10">
+            <button
+              className="w-full flex items-center justify-between border rounded-md px-2 py-1 bg-background hover:bg-muted transition-colors text-xs"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowWeightOptions(!showWeightOptions);
+              }}
+            >
+              <span>{selectedOption.label}</span>
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            </button>
+            
+            {showWeightOptions && (
+              <div className="absolute z-20 mt-1 w-full bg-background border rounded-md shadow-lg">
+                {product.weightOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    className="w-full text-left px-2 py-1 hover:bg-muted text-xs"
+                    onClick={(e) => handleWeightSelect(e, option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-center">

@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById, getProductsByCategory, Product } from '@/lib/data';
+import { getProductById, getProductsByCategory, Product, WeightOption } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
@@ -18,13 +17,6 @@ import {
   ChevronDown
 } from 'lucide-react';
 
-// Weight/size options type
-interface WeightOption {
-  label: string;
-  value: string;
-  priceModifier: number;
-}
-
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,11 +27,14 @@ const ProductDetail = () => {
   const [showWeightOptions, setShowWeightOptions] = useState(false);
   
   const product = id ? getProductById(id) : undefined;
-  const cartItem = product ? cartItems.find(item => item.product.id === product.id) : undefined;
+  const cartItem = product ? cartItems.find(
+    item => item.product.id === product.id && 
+    item.product.selectedWeight === product.weightOptions?.find(opt => opt.value === selectedWeight)?.label
+  ) : undefined;
   const isInCart = !!cartItem;
 
-  // Define weight/size options based on product category
-  const weightOptions: WeightOption[] = [
+  // Get weight options from product or use defaults
+  const weightOptions: WeightOption[] = product?.weightOptions || [
     { label: 'Regular Size', value: 'default', priceModifier: 0 },
     { label: '500g', value: 'small', priceModifier: -0.25 },
     { label: '1kg', value: 'medium', priceModifier: 0.5 },

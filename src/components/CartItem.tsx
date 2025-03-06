@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface CartItemProps {
   item: {
-    product: Product;
+    product: Product & { selectedWeight?: string };
     quantity: number;
   };
   className?: string;
@@ -38,6 +38,14 @@ const CartItem = ({ item, className }: CartItemProps) => {
       
       <div className="flex-grow min-w-0">
         <h3 className="font-medium truncate">{product.name}</h3>
+        
+        {/* Display selected weight if available */}
+        {product.selectedWeight && (
+          <div className="text-xs text-muted-foreground mt-1">
+            Size: {product.selectedWeight}
+          </div>
+        )}
+        
         <div className="flex items-center mt-1 text-sm text-muted-foreground">
           <span>${finalPrice.toFixed(2)} each</span>
           {product.discount && (
