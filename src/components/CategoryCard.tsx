@@ -11,6 +11,7 @@ interface CategoryCardProps {
 
 const CategoryCard = ({ category, className }: CategoryCardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const Icon = category.icon;
 
   return (
     <Link 
@@ -37,7 +38,13 @@ const CategoryCard = ({ category, className }: CategoryCardProps) => {
           onLoad={() => setIsImageLoaded(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent transition-opacity group-hover:opacity-80" />
-        <div className="absolute inset-0 flex items-center justify-center">
+        
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {Icon && (
+            <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm mb-2 transform transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
+              <Icon className="h-8 w-8 text-white" strokeWidth={1.5} />
+            </div>
+          )}
           <span className="text-white font-semibold text-xl text-center px-2 transform transition-transform duration-300 group-hover:scale-110">
             {category.name}
           </span>
