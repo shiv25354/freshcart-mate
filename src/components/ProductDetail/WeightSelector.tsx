@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { WeightOption } from '@/lib/data';
+import { WeightOption } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface WeightSelectorProps {

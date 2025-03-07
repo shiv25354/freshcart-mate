@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { WeightOption } from '@/lib/data';
+import { WeightOption } from '@/lib/types';
 
 interface ProductCardWeightSelectorProps {
   weightOptions?: WeightOption[];

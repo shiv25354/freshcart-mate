@@ -1,5 +1,5 @@
 
-import { Product } from '@/lib/data';
+import { Product } from '@/lib/types';
 import ProductCard from '@/components/ProductCard';
 
 interface RelatedProductsProps {

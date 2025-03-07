@@ -1,5 +1,5 @@
 
-import { Product } from '@/lib/data';
+import { Product } from '@/lib/types';
 import { Leaf } from 'lucide-react';
 
 interface ProductImageProps {
