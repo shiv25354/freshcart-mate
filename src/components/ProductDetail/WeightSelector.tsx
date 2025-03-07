@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 import { WeightOption } from '@/lib/data';
+import { cn } from '@/lib/utils';
 
 interface WeightSelectorProps {
   weightOptions: WeightOption[];
@@ -10,7 +10,6 @@ interface WeightSelectorProps {
 }
 
 const WeightSelector = ({ weightOptions, selectedWeight, onWeightChange }: WeightSelectorProps) => {
-  const [showWeightOptions, setShowWeightOptions] = useState(false);
   const selectedOption = weightOptions.find(opt => opt.value === selectedWeight) || weightOptions[0];
 
   return (
@@ -18,31 +17,23 @@ const WeightSelector = ({ weightOptions, selectedWeight, onWeightChange }: Weigh
       <label className="block text-sm font-medium text-muted-foreground mb-2">
         Choose Weight/Size:
       </label>
-      <div className="relative">
-        <button
-          className="w-full flex items-center justify-between border rounded-md px-4 py-2.5 bg-background hover:bg-muted transition-colors"
-          onClick={() => setShowWeightOptions(!showWeightOptions)}
-        >
-          <span>{selectedOption.label}</span>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        </button>
-        
-        {showWeightOptions && (
-          <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg">
-            {weightOptions.map((option) => (
-              <button
-                key={option.value}
-                className="w-full text-left px-4 py-2.5 hover:bg-muted"
-                onClick={() => {
-                  onWeightChange(option.value);
-                  setShowWeightOptions(false);
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="flex flex-wrap gap-2">
+        {weightOptions.map((option) => (
+          <button
+            key={option.value}
+            className={cn(
+              "flex items-center justify-center h-14 w-14 rounded-full border transition-colors",
+              "text-sm font-medium hover:border-primary",
+              selectedWeight === option.value 
+                ? "bg-primary text-primary-foreground border-primary" 
+                : "bg-background border-input"
+            )}
+            onClick={() => onWeightChange(option.value)}
+            aria-selected={selectedWeight === option.value}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
     </div>
   );
