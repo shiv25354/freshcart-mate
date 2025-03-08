@@ -33,8 +33,23 @@ const OrderSuccess = () => {
     // Clear the cart as order is completed
     clearCart();
     
-    // Toast notification
-    toast.success("Your order has been placed successfully!");
+    // Success toast notification with longer duration and interactive elements
+    toast.success("Order Placed Successfully!", {
+      description: `Your order #${orderId} has been confirmed and is being prepared.`,
+      duration: 6000,
+      action: {
+        label: "Track Order",
+        onClick: () => navigate(`/track-order/${orderId}`),
+      },
+    });
+    
+    // Additional toast after 2 seconds for a friendlier experience
+    const welcomeTimeout = setTimeout(() => {
+      toast("Thank you for your order!", {
+        description: "We're preparing everything fresh for you.",
+        icon: <Heart className="text-red-500 h-5 w-5" />,
+      });
+    }, 2000);
     
     // Setup countdown timer
     const timer = setInterval(() => {
@@ -44,17 +59,44 @@ const OrderSuccess = () => {
       if (seconds === 0) {
         if (minutes === 0) {
           clearInterval(timer);
-          toast.info("Your order is being delivered now!");
+          toast.info("Your order is being delivered now!", {
+            description: "The driver is on the way to your location.",
+            icon: <Truck className="h-5 w-5" />,
+          });
         } else {
           setMinutes(minutes - 1);
           setSeconds(59);
+          
+          // Show status update toasts at specific intervals
+          if (minutes === 25) {
+            toast("Order Update", {
+              description: "Your order has been received by the restaurant!",
+              icon: <CheckCircle className="text-green-500 h-5 w-5" />,
+            });
+          } else if (minutes === 15) {
+            toast("Order Update", {
+              description: "Your order is being prepared by our chefs!",
+              icon: <Package className="text-blue-500 h-5 w-5" />,
+            });
+          }
         }
       }
     }, 1000);
     
-    // Clean up interval on component unmount
-    return () => clearInterval(timer);
-  }, [minutes, seconds, clearCart]);
+    // Clean up intervals on component unmount
+    return () => {
+      clearInterval(timer);
+      clearTimeout(welcomeTimeout);
+    };
+  }, [minutes, seconds, clearCart, orderId, navigate]);
+
+  // Function to handle receipt download
+  const handleDownloadReceipt = () => {
+    toast.success("Receipt Downloaded", {
+      description: "Your receipt has been downloaded to your device.",
+      icon: <Receipt className="h-5 w-5" />,
+    });
+  };
   
   return (
     <div className="min-h-screen pt-16 pb-20 px-4 md:px-6 max-w-3xl mx-auto">
@@ -106,6 +148,7 @@ const OrderSuccess = () => {
             as={Link}
             to={`/track-order/${orderId}`}
             className="flex items-center justify-center gap-2"
+            onClick={() => toast.info("Tracking your order", { description: "Loading live order tracking..." })}
           >
             <Package className="h-5 w-5" />
             Track Order
@@ -114,6 +157,7 @@ const OrderSuccess = () => {
             variant="outline" 
             size="lg" 
             className="flex items-center justify-center gap-2"
+            onClick={handleDownloadReceipt}
           >
             <Receipt className="h-5 w-5" />
             View Receipt
@@ -173,6 +217,7 @@ const OrderSuccess = () => {
           as={Link}
           to="/orders"
           className="w-full"
+          onClick={() => toast.info("Viewing all orders", { description: "Loading your order history..." })}
         >
           View All Orders
         </Button>
@@ -181,6 +226,7 @@ const OrderSuccess = () => {
           to="/"
           variant="outline"
           className="w-full"
+          onClick={() => toast.info("Back to shopping", { description: "Taking you to our store..." })}
         >
           Continue Shopping
         </Button>

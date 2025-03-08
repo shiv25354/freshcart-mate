@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   Bell, 
@@ -45,6 +46,7 @@ const TrackOrder = () => {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [orderDetails, setOrderDetails] = useState(mockOrderDetails);
+  const [lastNotifiedStep, setLastNotifiedStep] = useState<number | null>(null);
   
   useEffect(() => {
     // Simulate loading
@@ -53,10 +55,52 @@ const TrackOrder = () => {
       // In a real app, you would fetch the order details based on the ID
       if (id) {
         setOrderDetails({...mockOrderDetails, id});
+        
+        // Show welcome toast when loaded
+        toast.info(`Tracking order #${id}`, {
+          description: "You'll receive notifications as your order status changes"
+        });
       }
     }, 800);
     return () => clearTimeout(timer);
   }, [id]);
+
+  // Simulate order status updates
+  useEffect(() => {
+    if (isLoading) return;
+
+    // Find the current active step (the first non-completed step)
+    const currentActiveStepIndex = orderDetails.progress.findIndex(step => !step.completed);
+    
+    // If there's a new active step that we haven't notified about yet
+    if (currentActiveStepIndex > 0 && currentActiveStepIndex !== lastNotifiedStep) {
+      const currentStep = orderDetails.progress[currentActiveStepIndex];
+      
+      // Demo: After 5 seconds, simulate the order reaching the next step
+      const statusTimer = setTimeout(() => {
+        // Update the order progress
+        const updatedProgress = [...orderDetails.progress];
+        if (currentActiveStepIndex >= 0) {
+          updatedProgress[currentActiveStepIndex].completed = true;
+          
+          setOrderDetails({
+            ...orderDetails,
+            progress: updatedProgress
+          });
+          
+          // Show notification for the new status
+          toast.success(`Order Status Updated!`, {
+            description: `Your order is now ${currentStep.status.toLowerCase()}`,
+            icon: currentStep.icon === 'truck' ? <Truck className="h-4 w-4" /> : <Check className="h-4 w-4" />
+          });
+          
+          setLastNotifiedStep(currentActiveStepIndex);
+        }
+      }, 5000);
+      
+      return () => clearTimeout(statusTimer);
+    }
+  }, [isLoading, orderDetails, lastNotifiedStep]);
 
   const handleBack = () => {
     navigate('/orders');
@@ -81,6 +125,35 @@ const TrackOrder = () => {
     }
   };
 
+  // Notification system interaction
+  const toggleNotifications = () => {
+    toast.info(
+      "Notifications are now " + (true ? "enabled" : "disabled"), 
+      { description: "You'll receive updates about your order status" }
+    );
+  };
+
+  const contactDriver = (method: 'call' | 'message') => {
+    if (method === 'call') {
+      toast.info("Calling driver...", {
+        description: `Connecting you to ${orderDetails.driver.name}`,
+        icon: <Phone className="h-4 w-4" />,
+      });
+    } else {
+      toast.info("Message sent", {
+        description: `Your message has been sent to ${orderDetails.driver.name}`,
+        icon: <MessageSquare className="h-4 w-4" />,
+      });
+    }
+  };
+
+  const downloadReceipt = () => {
+    toast.success("Receipt downloaded", {
+      description: "Your receipt has been downloaded to your device",
+      icon: <Download className="h-4 w-4" />,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       <header className="bg-card px-4 py-3 fixed top-0 w-full z-50 border-b">
@@ -91,7 +164,7 @@ const TrackOrder = () => {
             </Button>
             <h1 className="ml-2 text-lg font-semibold">Track Order #{orderDetails.id}</h1>
           </div>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={toggleNotifications}>
             <Bell className="h-5 w-5" />
           </Button>
         </div>
@@ -148,10 +221,10 @@ const TrackOrder = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button size="icon" variant="outline" className="rounded-full h-10 w-10">
+                <Button size="icon" variant="outline" className="rounded-full h-10 w-10" onClick={() => contactDriver('call')}>
                   <Phone className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="outline" className="rounded-full h-10 w-10">
+                <Button size="icon" variant="outline" className="rounded-full h-10 w-10" onClick={() => contactDriver('message')}>
                   <MessageSquare className="h-4 w-4" />
                 </Button>
               </div>
@@ -203,7 +276,7 @@ const TrackOrder = () => {
       )}
       
       <nav className="fixed bottom-0 w-full bg-card border-t p-4">
-        <Button className="w-full" size="lg">
+        <Button className="w-full" size="lg" onClick={downloadReceipt}>
           <Download className="mr-2 h-4 w-4" />
           Download Receipt
         </Button>
