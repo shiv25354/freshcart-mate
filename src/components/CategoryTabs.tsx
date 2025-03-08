@@ -66,7 +66,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
             onClick={() => scrollToDirection('left')} 
             size="icon" 
             variant="outline" 
-            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
+            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -80,7 +80,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
             onClick={() => scrollToDirection('right')} 
             size="icon" 
             variant="outline" 
-            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
+            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -94,37 +94,74 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
         scrollHideDelay={100}
       >
         <div 
-          className="flex items-center space-x-2 pb-1 pt-1 px-2"
+          className="flex items-center space-x-3 pb-2 pt-2 px-2"
           ref={scrollContainerRef}
         >
-          <Button
+          <div 
             onClick={() => handleCategoryChange('all')}
-            variant={activeCategory === 'all' ? 'default' : 'outline'}
             className={cn(
-              "whitespace-nowrap rounded-full",
-              activeCategory === 'all' 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-background"
+              "flex flex-col items-center justify-center min-w-[70px] transition-all duration-300",
+              "cursor-pointer select-none",
+              activeCategory === 'all' ? "scale-110" : "scale-100 hover:scale-105"
             )}
           >
-            All Items
-          </Button>
+            <div className={cn(
+              "flex items-center justify-center w-14 h-14 rounded-full mb-1",
+              "bg-gradient-to-br from-primary/70 to-primary/90 text-white",
+              "shadow-lg shadow-primary/20",
+              "transition-all duration-300 ease-in-out",
+              activeCategory === 'all' 
+                ? "transform scale-110"
+                : "opacity-80 hover:opacity-100"
+            )}>
+              <span className="text-xl">🛒</span>
+            </div>
+            <span className={cn(
+              "text-xs font-medium text-center",
+              activeCategory === 'all' ? "text-primary" : "text-foreground/80"
+            )}>
+              All Items
+            </span>
+          </div>
           
-          {categories.map((category) => (
-            <Button
-              key={category.id}
-              onClick={() => handleCategoryChange(category.id)}
-              variant={activeCategory === category.id ? 'default' : 'outline'}
-              className={cn(
-                "whitespace-nowrap rounded-full",
-                activeCategory === category.id 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-background"
-              )}
-            >
-              {category.name}
-            </Button>
-          ))}
+          {categories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <div 
+                key={category.id}
+                onClick={() => handleCategoryChange(category.id)}
+                className={cn(
+                  "flex flex-col items-center justify-center min-w-[70px] transition-all duration-300",
+                  "cursor-pointer select-none",
+                  activeCategory === category.id ? "scale-110" : "scale-100 hover:scale-105"
+                )}
+              >
+                <div className={cn(
+                  "flex items-center justify-center w-14 h-14 rounded-full mb-1",
+                  "bg-gradient-to-br",
+                  activeCategory === category.id 
+                    ? "from-primary/70 to-primary/90 text-white"
+                    : "from-background to-muted/50 text-foreground/80",
+                  "shadow-lg",
+                  activeCategory === category.id 
+                    ? "shadow-primary/20" 
+                    : "shadow-muted/10",
+                  "transition-all duration-300 ease-in-out",
+                  activeCategory === category.id 
+                    ? "transform scale-110"
+                    : "opacity-80 hover:opacity-100"
+                )}>
+                  {Icon && <Icon className="w-6 h-6" />}
+                </div>
+                <span className={cn(
+                  "text-xs font-medium text-center",
+                  activeCategory === category.id ? "text-primary" : "text-foreground/80"
+                )}>
+                  {category.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </ScrollArea>
     </div>
