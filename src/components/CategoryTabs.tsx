@@ -66,7 +66,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
             onClick={() => scrollToDirection('left')} 
             size="icon" 
             variant="outline" 
-            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
+            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-md"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -80,7 +80,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
             onClick={() => scrollToDirection('right')} 
             size="icon" 
             variant="outline" 
-            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
+            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-md"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -94,19 +94,19 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
         scrollHideDelay={100}
       >
         <div 
-          className="flex items-center space-x-3 pb-2 pt-2 px-2"
+          className="flex items-center space-x-4 pb-3 pt-3 px-2"
           ref={scrollContainerRef}
         >
           <div 
             onClick={() => handleCategoryChange('all')}
             className={cn(
-              "flex flex-col items-center justify-center min-w-[70px] transition-all duration-300",
+              "flex flex-col items-center justify-center min-w-[75px] transition-all duration-300",
               "cursor-pointer select-none",
               activeCategory === 'all' ? "scale-110" : "scale-100 hover:scale-105"
             )}
           >
             <div className={cn(
-              "flex items-center justify-center w-14 h-14 rounded-full mb-1",
+              "flex items-center justify-center w-16 h-16 rounded-full mb-1",
               "bg-gradient-to-br from-primary/70 to-primary/90 text-white",
               "shadow-lg shadow-primary/20",
               "transition-all duration-300 ease-in-out",
@@ -114,7 +114,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
                 ? "transform scale-110"
                 : "opacity-80 hover:opacity-100"
             )}>
-              <span className="text-xl">🛒</span>
+              <span className="text-2xl">🛒</span>
             </div>
             <span className={cn(
               "text-xs font-medium text-center",
@@ -131,13 +131,13 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center min-w-[70px] transition-all duration-300",
+                  "flex flex-col items-center justify-center min-w-[75px] transition-all duration-300",
                   "cursor-pointer select-none",
                   activeCategory === category.id ? "scale-110" : "scale-100 hover:scale-105"
                 )}
               >
                 <div className={cn(
-                  "flex items-center justify-center w-14 h-14 rounded-full mb-1",
+                  "flex items-center justify-center w-16 h-16 rounded-full mb-1",
                   "bg-gradient-to-br",
                   activeCategory === category.id 
                     ? "from-primary/70 to-primary/90 text-white"
@@ -151,7 +151,7 @@ const CategoryTabs = ({ onCategoryChange }: CategoryTabsProps) => {
                     ? "transform scale-110"
                     : "opacity-80 hover:opacity-100"
                 )}>
-                  {Icon && <Icon className="w-6 h-6" />}
+                  {Icon && <Icon className="w-7 h-7" />}
                 </div>
                 <span className={cn(
                   "text-xs font-medium text-center",
