@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
@@ -6,6 +5,7 @@ import CartItem from '@/components/CartItem';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, ArrowRight, Truck, Calendar, CreditCard } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { toast } from '@/lib/toast';
 
 const Cart = () => {
   const navigate = useNavigate();

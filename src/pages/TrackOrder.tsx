@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Truck, Check } from 'lucide-react';
 
 // Components

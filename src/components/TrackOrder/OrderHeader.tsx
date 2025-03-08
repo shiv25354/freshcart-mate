@@ -2,7 +2,7 @@
 import { ArrowLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface OrderHeaderProps {
   orderId: string;

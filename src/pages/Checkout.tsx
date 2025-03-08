@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { deliveryOptions, paymentMethods } from '@/lib/checkout-constants';
 
 // Component imports

@@ -1,7 +1,7 @@
 
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const OrderFooter = () => {
   const downloadReceipt = () => {

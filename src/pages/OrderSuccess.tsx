@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, MapPin, Clock, ArrowLeft, Package, Receipt, Heart } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, ArrowLeft, Package, Receipt, Heart, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ const OrderSuccess = () => {
     
     // Additional toast after 2 seconds for a friendlier experience
     const welcomeTimeout = setTimeout(() => {
-      toast("Thank you for your order!", {
+      toast.info("Thank you for your order!", {
         description: "We're preparing everything fresh for you.",
         icon: <Heart className="text-red-500 h-5 w-5" />,
       });
@@ -69,12 +68,12 @@ const OrderSuccess = () => {
           
           // Show status update toasts at specific intervals
           if (minutes === 25) {
-            toast("Order Update", {
+            toast.info("Order Update", {
               description: "Your order has been received by the restaurant!",
               icon: <CheckCircle className="text-green-500 h-5 w-5" />,
             });
           } else if (minutes === 15) {
-            toast("Order Update", {
+            toast.info("Order Update", {
               description: "Your order is being prepared by our chefs!",
               icon: <Package className="text-blue-500 h-5 w-5" />,
             });

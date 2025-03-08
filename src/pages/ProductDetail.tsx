@@ -5,6 +5,7 @@ import { getProductById, getProductsByCategory, Product, WeightOption } from '@/
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from '@/lib/toast';
 
 // Import our new components
 import ProductImage from '@/components/ProductDetail/ProductImage';
