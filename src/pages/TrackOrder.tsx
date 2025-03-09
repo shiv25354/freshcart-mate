@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from "@/lib/toast";
-import { Truck, Check } from 'lucide-react';
+import { Truck, Check, ShoppingCart, Package } from 'lucide-react';
 
 // Components
 import OrderHeader from '@/components/TrackOrder/OrderHeader';
@@ -86,11 +85,29 @@ const TrackOrder = () => {
             progress: updatedProgress
           });
           
-          // Show notification for the new status
-          toast.success(`Order Status Updated!`, {
-            description: `Your order is now ${currentStep.status.toLowerCase()}`,
-            icon: currentStep.icon === 'truck' ? <Truck className="h-4 w-4" /> : <Check className="h-4 w-4" />
-          });
+          // Show notification for the new status based on the step
+          if (currentStep.status === 'Order Placed') {
+            toast.success("🟢 Your order is confirmed!", {
+              description: "We're getting everything ready for you. 🛒",
+              icon: <ShoppingCart className="h-4 w-4" />
+            });
+          } else if (currentStep.status === 'Out for Delivery') {
+            toast.info("🚗 Your groceries are on the way!", {
+              description: "Track your order in real-time. 📍",
+              icon: <Truck className="h-4 w-4" />
+            });
+          } else if (currentStep.status === 'Delivered') {
+            toast.success("📦 Delivered!", {
+              description: "Your groceries have arrived. Bon appétit! 🍏",
+              icon: <Package className="h-4 w-4" />
+            });
+          } else {
+            // Generic notification for other statuses
+            toast.success(`Order Status Updated!`, {
+              description: `Your order is now ${currentStep.status.toLowerCase()}`,
+              icon: currentStep.icon === 'truck' ? <Truck className="h-4 w-4" /> : <Check className="h-4 w-4" />
+            });
+          }
           
           setLastNotifiedStep(currentActiveStepIndex);
         }

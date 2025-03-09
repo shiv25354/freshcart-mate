@@ -86,7 +86,7 @@ export const toast = {
   /**
    * Promise toast that shows loading, success, and error states
    */
-  promise: <T>(
+  promise: <T extends unknown>(
     promise: Promise<T>,
     {
       loading,
