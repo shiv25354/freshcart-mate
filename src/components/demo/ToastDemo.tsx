@@ -61,17 +61,21 @@ const ToastDemo = () => {
   };
 
   const showPromiseToast = () => {
-    const promise = new Promise((resolve) => {
-      setTimeout(() => resolve({ name: 'Order #2458' }), 2000);
+    // Fix the promise type and error handler
+    const promise = new Promise<{ orderNumber: string }>((resolve) => {
+      setTimeout(() => resolve({ orderNumber: 'Order #2458' }), 2000);
     });
 
     toast.promise(promise, {
       loading: 'Processing your order...',
       success: (data) => ({
         title: 'Order placed!',
-        description: `${data.name} has been confirmed`,
+        description: `${data.orderNumber} has been confirmed`,
       }),
-      error: 'Error processing your order',
+      error: (err) => ({
+        title: 'Error processing your order',
+        description: 'Please try again later'
+      }),
     });
   };
 
