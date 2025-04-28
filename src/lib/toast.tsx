@@ -1,11 +1,12 @@
-
-import { toast as sonnerToast, ExternalToast } from "sonner";
+import { toast as sonnerToast, ExternalToast, ToastT } from "sonner";
 import { LucideIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 type ToastType = "success" | "error" | "info" | "warning" | "default";
 
-interface ToastOptions {
+type SonnerToastMethod = (message: ReactNode, data?: ExternalToast) => string | number;
+
+interface ToastOptions extends Omit<ExternalToast, 'title'> {
   description?: ReactNode;
   duration?: number;
   icon?: ReactNode;
@@ -14,6 +15,12 @@ interface ToastOptions {
     onClick: () => void;
   };
 }
+
+type PromiseData<T> = {
+  loading: string;
+  success: (data: T) => ReactNode;
+  error: (error: unknown) => ReactNode;
+};
 
 /**
  * Unified toast notification system for the entire application
@@ -58,11 +65,12 @@ export const toast = {
    * Show a custom toast notification with a specific icon
    */
   custom: (title: string, type: ToastType, Icon?: LucideIcon, options?: ToastOptions) => {
+    const toastMethod = type === 'default' ? sonnerToast : sonnerToast[type];
     if (Icon) {
       const IconComponent = <Icon className="h-5 w-5" />;
-      return sonnerToast[type](title, { ...options, icon: IconComponent } as ExternalToast);
+      return (toastMethod as SonnerToastMethod)(title, { ...options, icon: IconComponent } as ExternalToast);
     }
-    return sonnerToast[type](title, options as ExternalToast);
+    return (toastMethod as SonnerToastMethod)(title, options as ExternalToast);
   },
 
   /**
@@ -75,13 +83,8 @@ export const toast = {
   /**
    * Update an existing toast by ID
    */
-  update: (toastId: string, data: { title?: string } & ToastOptions) => {
-    const { title, ...options } = data;
-    // Use type assertion to handle the update method
-    (sonnerToast as any).update(toastId, { 
-      ...options, 
-      ...(title ? { title } : {}) 
-    });
+  update: (toastId: string | number, data: Partial<ExternalToast>) => {
+    return (sonnerToast as any).update?.(toastId, data);
   },
 
   /**
@@ -89,23 +92,12 @@ export const toast = {
    */
   promise: <T extends unknown>(
     promise: Promise<T>,
-    {
-      loading,
-      success,
-      error,
-    }: {
-      loading: string;
-      success: (data: T) => string | { title: string; description?: string };
-      error: (error: unknown) => string | { title: string; description?: string };
-    },
+    messages: PromiseData<T>,
     options?: ToastOptions
   ) => {
-    // Fix: pass options as part of the second argument object instead of as a third argument
     return sonnerToast.promise(promise, {
-      loading,
-      success,
-      error,
-      ...options as any
+      ...messages,
+      ...options as ExternalToast
     });
   }
 };

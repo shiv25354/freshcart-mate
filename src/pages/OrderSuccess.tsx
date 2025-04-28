@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, MapPin, Clock, ArrowLeft, Package, Receipt, Heart, Truck } from 'lucide-react';
@@ -9,94 +9,151 @@ import { toast } from "@/lib/toast";
 const OrderSuccess = () => {
   const navigate = useNavigate();
   const { clearCart } = useCart();
-  const orderId = "2458"; // This would typically come from the order creation response
-  
-  // Example order details
-  const orderDetails = {
-    id: orderId,
+  const { orderId } = useParams(); // Get orderId from URL params
+  const [orderDetails, setOrderDetails] = useState({
+    id: '',
     date: new Date(),
-    items: 3,
-    total: 45.97,
-    address: "123 Main Street, Apt 4B, New York, NY 10001",
-    deliveryTime: "30-45 minutes",
-  };
+    items: 0,
+    total: 0,
+    address: "",
+    deliveryTime: "",
+  });
   
-  // Timer state
-  const [minutes, setMinutes] = useState(30);
-  const [seconds, setSeconds] = useState(0);
+  // Timer state using a single value in seconds
+  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   
-  useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
-    
-    // Clear the cart as order is completed
-    clearCart();
-    
-    // Success toast notification with longer duration and interactive elements
-    toast.success("Order Placed Successfully!", {
-      description: `Your order #${orderId} has been confirmed and is being prepared.`,
-      duration: 6000,
-      action: {
-        label: "Track Order",
-        onClick: () => navigate(`/track-order/${orderId}`),
-      },
-    });
-    
-    // Additional toast after 2 seconds for a friendlier experience
-    const welcomeTimeout = setTimeout(() => {
-      toast.info("Thank you for your order!", {
-        description: "We're preparing everything fresh for you.",
-        icon: <Heart className="text-red-500 h-5 w-5" />,
+  // Derived time values
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  // Handle receipt download with proper error handling
+  const handleDownloadReceipt = async () => {
+    try {
+      // Simulate API call for receipt download
+      const response = await fetch(`/api/orders/${orderId}/receipt`);
+      if (!response.ok) throw new Error('Failed to download receipt');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Receipt Downloaded", {
+        description: "Your receipt has been downloaded to your device.",
+        icon: <Receipt className="h-5 w-5" />,
       });
-    }, 2000);
-    
-    // Setup countdown timer
-    const timer = setInterval(() => {
-      if (seconds > 0) {
-        setSeconds(seconds - 1);
+    } catch (error) {
+      toast.error("Failed to download receipt", {
+        description: "Please try again later or contact support.",
+      });
+    }
+  };
+
+  // Fetch order details
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        // Simulate API call
+        // In production, this would be a real API call
+        const mockDetails = {
+          id: orderId || '', // Provide default empty string if orderId is undefined
+          date: new Date(),
+          items: 3,
+          total: 45.97,
+          address: "123 Main Street, Apt 4B, New York, NY 10001",
+          deliveryTime: "30-45 minutes",
+        };
+        setOrderDetails(mockDetails);
+      } catch (error) {
+        toast.error("Failed to load order details", {
+          description: "Please refresh the page or contact support.",
+        });
+        navigate('/orders');
       }
-      if (seconds === 0) {
-        if (minutes === 0) {
+    };
+
+    if (orderId) {
+      fetchOrderDetails();
+    } else {
+      navigate('/orders');
+    }
+  }, [orderId, navigate]);
+
+  // Setup countdown timer with proper cleanup
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
           clearInterval(timer);
           toast.info("Your order is being delivered now!", {
             description: "The driver is on the way to your location.",
             icon: <Truck className="h-5 w-5" />,
           });
-        } else {
-          setMinutes(minutes - 1);
-          setSeconds(59);
-          
-          // Show status update toasts at specific intervals
-          if (minutes === 25) {
-            toast.info("Order Update", {
-              description: "Your order has been received by the restaurant!",
-              icon: <CheckCircle className="text-green-500 h-5 w-5" />,
-            });
-          } else if (minutes === 15) {
-            toast.info("Order Update", {
-              description: "Your order is being prepared by our chefs!",
-              icon: <Package className="text-blue-500 h-5 w-5" />,
-            });
-          }
+          return 0;
         }
-      }
+        
+        // Show status updates at specific times
+        if (prev === 25 * 60) { // 25 minutes left
+          toast.info("Order Update", {
+            description: "Your order has been received by the restaurant!",
+            icon: <CheckCircle className="text-green-500 h-5 w-5" />,
+          });
+        } else if (prev === 15 * 60) { // 15 minutes left
+          toast.info("Order Update", {
+            description: "Your order is being prepared by our chefs!",
+            icon: <Package className="text-blue-500 h-5 w-5" />,
+          });
+        }
+        
+        return prev - 1;
+      });
     }, 1000);
-    
-    // Clean up intervals on component unmount
-    return () => {
-      clearInterval(timer);
-      clearTimeout(welcomeTimeout);
-    };
-  }, [minutes, seconds, clearCart, orderId, navigate]);
 
-  // Function to handle receipt download
-  const handleDownloadReceipt = () => {
-    toast.success("Receipt Downloaded", {
-      description: "Your receipt has been downloaded to your device.",
-      icon: <Receipt className="h-5 w-5" />,
-    });
-  };
-  
+    return () => clearInterval(timer);
+  }, []); // No dependencies needed as we use functional updates
+
+  // Initial success notifications
+  useEffect(() => {
+    if (!orderId) return;
+
+    // Clear the cart as order is completed
+    clearCart();
+    
+    // Queue notifications with proper timing
+    const notifications = [
+      {
+        delay: 0,
+        fn: () => toast.success("Order Placed Successfully!", {
+          description: `Your order #${orderId} has been confirmed and is being prepared.`,
+          duration: 6000,
+          action: {
+            label: "Track Order",
+            onClick: () => navigate(`/track-order/${orderId}`),
+          },
+        })
+      },
+      {
+        delay: 2000,
+        fn: () => toast.info("Thank you for your order!", {
+          description: "We're preparing everything fresh for you.",
+          icon: <Heart className="text-red-500 h-5 w-5" />,
+        })
+      }
+    ];
+
+    // Setup notifications with proper cleanup
+    const timeouts = notifications.map(({ delay, fn }) => 
+      setTimeout(fn, delay)
+    );
+
+    return () => timeouts.forEach(clearTimeout);
+  }, [orderId, clearCart, navigate]);
+
   return (
     <div className="min-h-screen pt-16 pb-20 px-4 md:px-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-2 mb-6 mt-8">

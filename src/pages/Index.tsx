@@ -103,7 +103,7 @@ const Index = () => {
         title="Featured Products" 
         icon={TrendingUp}
         viewAllLink="/featured"
-        className={`transition-all duration-700 delay-[400ms] ${
+        className={`transition-all duration-700 delay-400 ${
           isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
@@ -119,7 +119,7 @@ const Index = () => {
         title="New Arrivals" 
         icon={Sparkles}
         viewAllLink="/new"
-        className={`transition-all duration-700 delay-[600ms] ${
+        className={`transition-all duration-700 delay-600 ${
           isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
@@ -135,7 +135,7 @@ const Index = () => {
         title="Special Offers" 
         icon={Percent}
         viewAllLink="/offers"
-        className={`transition-all duration-700 delay-[800ms] ${
+        className={`transition-all duration-700 delay-800 ${
           isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
